@@ -234,6 +234,25 @@
       "isMarkdown": true
     }
   ],
+  "jiuwenclaw_workspace/skills/multihop-qa-reasoning": [
+    {
+      "name": "reference.md",
+      "path": "agent/jiuwenclaw_workspace/skills/multihop-qa-reasoning/reference.md",
+      "isMarkdown": true
+    },
+    {
+      "name": "SKILL.md",
+      "path": "agent/jiuwenclaw_workspace/skills/multihop-qa-reasoning/SKILL.md",
+      "isMarkdown": true
+    }
+  ],
+  "jiuwenclaw_workspace/skills/multihop-qa-reasoning/scripts": [
+    {
+      "name": "permute_context.py",
+      "path": "agent/jiuwenclaw_workspace/skills/multihop-qa-reasoning/scripts/permute_context.py",
+      "isMarkdown": false
+    }
+  ],
   "jiuwenclaw_workspace/skills/openJiuwen-DeepSearch": [
     {
       "name": "README.md",
