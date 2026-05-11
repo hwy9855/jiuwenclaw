@@ -18,7 +18,7 @@ Prompt engineering rules for answering multi-hop questions over retrieved docume
 ### Rule 1 — Forward Document Order
 **Always place documents in reasoning-chain order.**
 
-If a question requires two hops (Doc A establishes an intermediate fact, Doc B uses that fact to reach the answer), put Doc A before Doc B. Reverse order degrades performance significantly for decoder-only models.
+If a question requires two hops (Doc A establishes an intermediate fact, Doc B uses that fact to reach the answer), put Doc A before Doc B. Reverse order degrades performance significantly.
 
 ```
 WRONG:  [Doc B (hop 2), irrelevant docs..., Doc A (hop 1)]
@@ -51,10 +51,10 @@ This replicated the paper's heuristic improvement (Qwen 7B: 28.6% → 33.7% accu
 
 See [reference.md](reference.md) for the full prompt template used in permutation sampling.
 
-### Rule 4 — Global-View Prefix (Bi-directional Attention Workaround)
+### Rule 4 — Global-View Prefix
 **Prepend a brief summary of all documents before the individual documents.**
 
-Decoder-only models (Qwen, Llama) use a causal mask and cannot attend backwards. A global-view prefix gives the model a forward pass over all content before it reads each document in detail, partially compensating for this limitation.
+A global-view prefix gives the model a high-level pass over all content before it reads each document in detail, improving cross-document reasoning.
 
 Prompt structure:
 ```
@@ -171,5 +171,5 @@ Input `answers.jsonl` format: one JSON object per line with `{"permutation_id": 
 
 ## Additional Resources
 
-- Full paper results, architecture comparison tables, and expanded prompt templates: [reference.md](reference.md)
+- Full paper results, experimental findings, and expanded prompt templates: [reference.md](reference.md)
 - Paper: Huang et al., "Masking in Multi-hop QA: An Analysis of How Language Models Perform with Context Permutation", ACL 2025. Code: https://github.com/hwy9855/MultiHopQA-Reasoning

@@ -8,28 +8,11 @@ Code: https://github.com/hwy9855/MultiHopQA-Reasoning
 
 ## Paper Overview
 
-The paper conducts a systematic study of how Language Models (LMs) answer multi-hop questions (MHQA) when retrieved documents are presented in different orders (permutations). The core finding is that **document order has a large, measurable impact** on MHQA accuracy, and that the **causal attention mask** in decoder-only models is a fundamental bottleneck.
-
-Three LM families are studied:
-- **Flan-T5** (encoder-decoder, 250M–11B): bidirectional attention by design
-- **Qwen 2.5** (decoder-only, 1.5B–72B): causal mask
-- **Llama 3.x** (decoder-only, 1B–70B): causal mask
+The paper conducts a systematic study of how Language Models (LMs) answer multi-hop questions (MHQA) when retrieved documents are presented in different orders (permutations). The core finding is that **document order has a large, measurable impact** on MHQA accuracy.
 
 ---
 
 ## Key Results
-
-### Architecture Comparison (Zero-shot, no fine-tuning)
-
-Encoder-decoder models outperform causal decoder-only models despite being much smaller:
-
-| Model | Type | Size | MHQA Accuracy |
-|-------|------|------|---------------|
-| Flan-T5-XL | Encoder-decoder | 3B | High |
-| Qwen 2.5 | Decoder-only | 7B | Lower |
-| Llama 3.1 | Decoder-only | 8B | Lower |
-
-**Takeaway**: If you have a choice of which API model to call for MHQA tasks, prefer encoder-decoder models (e.g., Flan-T5 via API) over same-size decoder-only models. When only decoder-only models are available, apply all 5 rules from SKILL.md to compensate.
 
 ### Document Order Impact
 
@@ -38,7 +21,7 @@ Three permutation conditions studied:
 - **Backward**: Reversed → significantly degraded
 - **Random**: Mixed → intermediate, unpredictable
 
-Fine-tuned decoder-only models develop a strong forward-order bias. Even Flan-T5 models prefer forward order, though less strongly due to bidirectional attention.
+Fine-tuned models develop a strong forward-order bias. Forward order is robustly the best configuration across all model families tested.
 
 ### Distance Between Gold Documents
 
@@ -71,11 +54,9 @@ Since API access does not expose attention weights, the practical equivalent is 
 
 **Measured improvement** (Qwen 7B): 28.6% → 33.7% accuracy using 6-permutation sampling.
 
-### Bi-directional Attention Modification
+### Global-View Prefix
 
-The paper tests replacing the causal mask with a prefix (bidirectional) mask at inference time for decoder-only models. This improves MHQA accuracy and increases robustness when document order is suboptimal.
-
-Since this requires local model weight access, the API-compatible substitute is the **global-view prefix** (Rule 4 in SKILL.md): prepending a summary of all documents forces the model to process a high-level overview before attending to individual documents in sequence.
+Prepending a brief summary of all documents before the full document texts improves cross-document reasoning. It forces the model to process a high-level overview before attending to each document in sequence, increasing robustness when document order is suboptimal.
 
 ---
 
@@ -109,7 +90,7 @@ Answer:
 
 ### Template B — Global-View Prefix (Rule 4)
 
-Use when document order is uncertain or when working with a decoder-only model:
+Use when document order is uncertain or when reasoning across many documents:
 
 ```
 [CONTEXT OVERVIEW]
@@ -197,9 +178,6 @@ Permutation sampling costs N API calls. More than 6 permutations rarely improves
 
 ### Pitfall 4 — Dropping the First-Hop Document
 If context length forces truncation, the intuitive choice (drop the document most distant from the final answer) is correct: drop the last-hop document, not the first-hop document. The first-hop document establishes the intermediate entity that the whole reasoning chain depends on.
-
-### Pitfall 5 — Using Decoder-Only Models Without Compensation
-For straightforward MHQA tasks, a smaller encoder-decoder model (Flan-T5-Large, 770M) via API will often outperform a much larger decoder-only model (7B) with no prompt adjustments. If you must use a decoder-only model, apply Rules 1–4 together for maximum effect.
 
 ---
 
